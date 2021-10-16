@@ -35,6 +35,8 @@ stages:
 - stage: Deploy
   displayName: Deploy image to dev
   dependsOn: Build
+  variables:
+    arcsecret: k8ssample
   jobs:
     - job: Deploy
       displayName: Deploy image to k8s
@@ -46,6 +48,14 @@ stages:
           buildType: 'current'
           artifactName: 'manifests'
           targetPath: '$(Pipeline.Workspace)/manifests'
+      - task: KubernetesManifest@0
+        inputs:
+          action: 'createSecret'
+          kubernetesServiceConnection: 'azureaks'
+          namespace: 'default'
+          secretType: 'dockerRegistry'
+          secretName: '$(acrsecret)'
+          dockerRegistryEndpoint: 'aks registry'
       - task: KubernetesManifest@0
         inputs:
           action: 'deploy'
