@@ -61,6 +61,8 @@ stages:
           action: 'deploy'
           kubernetesServiceConnection: 'kubernates'
           namespace: 'default'
+          imagePullSecrets: |
+            $(arcsecret)
           manifests: |
             $(Pipeline.Workspace)/manifests/deployment.yml
             $(Pipeline.Workspace)/manifests/service.yml
