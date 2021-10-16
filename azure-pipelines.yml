@@ -54,7 +54,7 @@ stages:
           kubernetesServiceConnection: 'kubernates'
           namespace: 'default'
           secretType: 'dockerRegistry'
-          secretName: '$(acrsecret)'
+          secretName: '$(arcsecret)'
           dockerRegistryEndpoint: 'aks registry'
       - task: KubernetesManifest@0
         inputs:
