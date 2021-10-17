@@ -37,6 +37,7 @@ stages:
   variables:
     arcsecret: k8ssample
     arcdevurl: seank8sacr.azurecr.io
+    replicaNo: 2
   jobs:
     - deployment: Deploy
       displayName: Deploy image to k8s
@@ -59,7 +60,21 @@ stages:
                 secretType: 'dockerRegistry'
                 secretName: '$(arcsecret)'
                 dockerRegistryEndpoint: 'aks registry'
-            
+            - task: replacetokens@4
+              inputs:
+                rootDirectory: '$(Pipeline.Workspace)/manifests/'
+                targetFiles: 'deployment.yml'
+                encoding: 'auto'
+                tokenPattern: 'custom'
+                tokenPrefix: '#'
+                tokenSuffix: '#'
+                writeBOM: true
+                actionOnMissing: 'warn'
+                keepToken: false
+                actionOnNoFiles: 'continue'
+                enableTransforms: false
+                useLegacyPattern: false
+                enableTelemetry: true
             - task: KubernetesManifest@0
               inputs:
                 action: 'deploy'
