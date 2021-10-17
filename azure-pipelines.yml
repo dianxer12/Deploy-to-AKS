@@ -38,30 +38,31 @@ stages:
   variables:
     arcsecret: k8ssample
   jobs:
-    - job: Deploy
+    - deployment: Deploy
       displayName: Deploy image to k8s
+      environment: 'k8sdev.default'
       pool:
         vmImage: ubuntu-latest
-      steps:
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          buildType: 'current'
-          artifactName: 'manifests'
-          targetPath: '$(Pipeline.Workspace)/manifests'
-      - task: KubernetesManifest@0
-        inputs:
-          action: 'createSecret'
-          kubernetesServiceConnection: 'kubernetes'
-          namespace: 'default'
-          secretType: 'dockerRegistry'
-          secretName: '$(arcsecret)'
-          dockerRegistryEndpoint: 'aks registry'
-      - task: KubernetesManifest@0
-        inputs:
-          action: 'deploy'
-          kubernetesServiceConnection: 'kubernetes'
-          namespace: 'default'
-          manifests: |
-            $(Pipeline.Workspace)/manifests/deployment.yml
-            $(Pipeline.Workspace)/manifests/service.yml
-          imagePullSecrets: '$(arcsecret)'
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+            - task: DownloadPipelineArtifact@2
+              inputs:
+                buildType: 'current'
+                artifactName: 'manifests'
+                targetPath: '$(Pipeline.Workspace)/manifests'
+            - task: KubernetesManifest@0
+              inputs:
+                action: 'createSecret'
+                namespace: 'default'
+                secretType: 'dockerRegistry'
+                secretName: '$(arcsecret)'
+                dockerRegistryEndpoint: 'aks registry'
+            - task: KubernetesManifest@0
+              inputs:
+                action: 'deploy'
+                namespace: 'default'
+                manifests: |
+                  $(Pipeline.Workspace)/manifests/deployment.yml
+                  $(Pipeline.Workspace)/manifests/service.yml
