@@ -51,7 +51,7 @@ stages:
       - task: KubernetesManifest@0
         inputs:
           action: 'createSecret'
-          kubernetesServiceConnection: 'kubernates'
+          kubernetesServiceConnection: 'kubernetes'
           namespace: 'default'
           secretType: 'dockerRegistry'
           secretName: '$(arcsecret)'
@@ -59,10 +59,9 @@ stages:
       - task: KubernetesManifest@0
         inputs:
           action: 'deploy'
-          kubernetesServiceConnection: 'kubernates'
+          kubernetesServiceConnection: 'kubernetes'
           namespace: 'default'
-          imagePullSecrets: |
-            $(arcsecret)
           manifests: |
             $(Pipeline.Workspace)/manifests/deployment.yml
             $(Pipeline.Workspace)/manifests/service.yml
+          imagePullSecrets: '$(arcsecret)'
